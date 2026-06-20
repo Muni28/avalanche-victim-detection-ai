@@ -1,0 +1,26 @@
+# Dataset (too large)
+dataset/
+
+# Archive files
+archive (1)/
+
+# Model files (too large for GitHub)
+human_detection_model.h5
+human_detection_model.keras
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+env/
+
+# Uploaded test images
+static/*.jpg
+static/*.jpeg
+static/*.png
+
+# OS files
+.DS_Store
+Thumbs.db

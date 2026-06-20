@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detection Result</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6f9;
+            min-height: 100vh;
+        }
+
+        /* ======= NAVBAR ======= */
+        .navbar {
+            background: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-brand .logo {
+            background: #0984e3;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .navbar-brand h1 {
+            font-size: 18px;
+            color: #2d3436;
+            font-weight: 700;
+        }
+
+        .navbar-brand p {
+            font-size: 12px;
+            color: #636e72;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .navbar-links a {
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+            color: #636e72;
+            background: #f4f6f9;
+        }
+
+        .navbar-links a:hover {
+            background: #dfe6e9;
+            color: #2d3436;
+        }
+
+        /* ======= MAIN ======= */
+        .main {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* ======= RESULT BANNER ======= */
+        .result-banner {
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-banner.human {
+            background: linear-gradient(135deg, #00b894, #55efc4);
+            color: white;
+        }
+
+        .result-banner.no-human {
+            background: linear-gradient(135deg, #636e72, #b2bec3);
+            color: white;
+        }
+
+        .result-banner .result-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+            animation: bounceIn 0.6s ease;
+        }
+
+        .result-banner h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .result-banner p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounceIn {
+            0%   { transform: scale(0); }
+            60%  { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* ======= CARDS GRID ======= */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        .card h4 {
+            font-size: 13px;
+            color: #636e72;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card .value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d3436;
+        }
+
+        /* ======= CONFIDENCE BAR ======= */
+        .confidence-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+
+        .confidence-card h4 {
+            font-size: 13px;
+            color: #636e72;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .confidence-bar-wrap {
+            background: #f4f6f9;
+            border-radius: 10px;
+            height: 16px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .confidence-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 1.5s ease;
+        }
+
+        .confidence-bar-fill.human {
+            background: linear-gradient(to right, #00b894, #55efc4);
+        }
+
+        .confidence-bar-fill.no-human {
+            background: linear-gradient(to right, #636e72, #b2bec3);
+        }
+
+        .confidence-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #636e72;
+        }
+
+        /* ======= IMAGE CARD ======= */
+        .image-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .image-card h4 {
+            font-size: 13px;
+            color: #636e72;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .image-card img {
+            max-width: 100%;
+            max-height: 280px;
+            border-radius: 10px;
+            border: 2px solid #dfe6e9;
+            object-fit: cover;
+        }
+
+        /* ======= DEPTH CARD ======= */
+        .depth-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .depth-card h4 {
+            font-size: 13px;
+            color: #636e72;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .depth-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .depth-item {
+            background: #f0f8ff;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .depth-item .d-icon {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .depth-item .d-label {
+            font-size: 11px;
+            color: #636e72;
+            margin-bottom: 4px;
+        }
+
+        .depth-item .d-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #2d3436;
+        }
+
+        /* ======= TIMER CARD ======= */
+        .timer-card {
+            background: #ff4757;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(255,71,87,0.3);
+            margin-bottom: 20px;
+            text-align: center;
+            color: white;
+            display: none;
+        }
+
+        .timer-card h4 {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .timer-display {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+
+        .timer-card small {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        /* ======= LOCATION CARD ======= */
+        .location-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .location-card h4 {
+            font-size: 13px;
+            color: #636e72;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .location-card #locationText {
+            font-size: 13px;
+            color: #2d3436;
+            margin-bottom: 15px;
+        }
+
+        .location-card iframe {
+            width: 100%;
+            height: 300px;
+            border-radius: 10px;
+            border: none;
+        }
+
+        /* ======= WHATSAPP BUTTON ======= */
+        .whatsapp-card {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .whatsapp-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            background: #25D366;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(37,211,102,0.3);
+        }
+
+        .whatsapp-btn:hover {
+            background: #128C7E;
+            transform: translateY(-1px);
+        }
+
+        /* ======= NAV BUTTONS ======= */
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .nav-btn {
+            padding: 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .nav-btn.primary {
+            background: #0984e3;
+            color: white;
+        }
+
+        .nav-btn.secondary {
+            background: white;
+            color: #2d3436;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="navbar-brand">
+            <div class="logo">🚁</div>
+            <div>
+                <h1>AvalancheAI</h1>
+                <p>Victim Detection System</p>
+            </div>
+        </div>
+        <div class="navbar-links">
+            <a href="/">🏠 Home</a>
+            <a href="/history">📋 History</a>
+            <a href="/stats">📊 Statistics</a>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- RESULT BANNER -->
+        <div class="result-banner {{ 'human' if 'Human Detected' in result and 'No' not in result else 'no-human' }}">
+            <div class="result-icon">
+                {{ '🟢' if 'Human Detected' in result and 'No' not in result else '⚪' }}
+            </div>
+            <h2 id="resultText">{{ result }}</h2>
+            <p>
+                {% if 'Human Detected' in result and 'No' not in result %}
+                    🚨 Rescue team has been alerted — Act immediately!
+                {% else %}
+                    ✅ Area scanned — No victim found in this image
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- CONFIDENCE BAR -->
+        <div class="confidence-card">
+            <h4>🎯 Detection Confidence</h4>
+            <div class="confidence-bar-wrap">
+                <div class="confidence-bar-fill {{ 'human' if 'Human Detected' in result and 'No' not in result else 'no-human' }}"
+                     id="confBar"></div>
+            </div>
+            <div class="confidence-labels">
+                <span>0%</span>
+                <span style="font-weight:700; color:#2d3436;">{{ confidence }}%</span>
+                <span>100%</span>
+            </div>
+        </div>
+
+        <!-- CARDS GRID -->
+        <div class="cards-grid">
+            <div class="card">
+                <h4>📊 Confidence Score</h4>
+                <div class="value">{{ confidence }}%</div>
+            </div>
+            <div class="card">
+                <h4>🔍 Detection Status</h4>
+                <div class="value" style="font-size:16px;">
+                    {{ '🟢 Detected' if 'Human Detected' in result and 'No' not in result else '⚪ Not Found' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- UPLOADED IMAGE -->
+        <div class="image-card">
+            <h4>📷 Uploaded Image</h4>
+            <img src="{{ image }}" alt="Detection Image">
+        </div>
+
+        <!-- DEPTH CARD -->
+        <div class="depth-card" id="depthCard">
+            <h4>📏 Snow Depth Analysis</h4>
+            <div class="depth-grid">
+                <div class="depth-item">
+                    <div class="d-icon">📏</div>
+                    <div class="d-label">Est. Depth</div>
+                    <div class="d-value" id="depthValue">--</div>
+                </div>
+                <div class="depth-item">
+                    <div class="d-icon">🌡️</div>
+                    <div class="d-label">Signal</div>
+                    <div class="d-value" id="signalStrength">--</div>
+                </div>
+                <div class="depth-item">
+                    <div class="d-icon">🧭</div>
+                    <div class="d-label">Dig Point</div>
+                    <div class="d-value" id="digPoint">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIMER CARD -->
+        <div class="timer-card" id="timerCard">
+            <h4>⏳ Survival Time Remaining</h4>
+            <div class="timer-display" id="countdown">15:00</div>
+            <small>⚠️ Victim has limited oxygen — Act immediately!</small>
+        </div>
+
+        <!-- LOCATION CARD -->
+        <div class="location-card" id="locationCard">
+            <h4>📍 Live Victim Location</h4>
+            <p id="locationText">Getting location...</p>
+            <iframe id="liveMap" src="" allowfullscreen></iframe>
+        </div>
+
+        <!-- WHATSAPP -->
+        <div class="whatsapp-card" id="whatsappCard">
+            <a class="whatsapp-btn" id="whatsappBtn" href="#" target="_blank">
+                📱 Send WhatsApp Alert to Rescue Team
+            </a>
+        </div>
+
+        <!-- NAV BUTTONS -->
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn primary">🔍 New Detection</a>
+            <a href="/history" class="nav-btn secondary">📋 History</a>
+            <a href="/stats" class="nav-btn secondary">📊 Statistics</a>
+        </div>
+
+    </div>
+
+    <script>
+    // ==============================
+    // Confidence Bar Animation
+    // ==============================
+    window.onload = function() {
+        setTimeout(function() {
+            document.getElementById("confBar").style.width = "{{ confidence }}%";
+        }, 300);
+    }
+
+    // ==============================
+    // Voice Alert
+    // ==============================
+    function speak(text) {
+        let speech    = new SpeechSynthesisUtterance(text);
+        speech.lang   = "en-US";
+        speech.rate   = 1;
+        speech.volume = 1;
+        window.speechSynthesis.speak(speech);
+    }
+
+    // ==============================
+    // Survival Timer
+    // ==============================
+    function startTimer(minutes) {
+        let totalSeconds = minutes * 60;
+        let timerCard    = document.getElementById("timerCard");
+        let countdown    = document.getElementById("countdown");
+
+        timerCard.style.display = "block";
+
+        let interval = setInterval(function() {
+            let mins = Math.floor(totalSeconds / 60);
+            let secs = totalSeconds % 60;
+
+            countdown.innerText =
+                String(mins).padStart(2, '0') + ":" +
+                String(secs).padStart(2, '0');
+
+            if (totalSeconds <= 300) {
+                timerCard.style.background = "#c0392b";
+                countdown.style.fontSize   = "56px";
+            }
+            if (totalSeconds <= 0) {
+                clearInterval(interval);
+                countdown.innerText        = "EXPIRED";
+                timerCard.style.background = "#2d3436";
+            }
+
+            totalSeconds--;
+        }, 1000);
+    }
+
+    // ==============================
+    // Depth Estimation
+    // ==============================
+    function estimateDepth(confidence) {
+        let depthCard = document.getElementById("depthCard");
+        depthCard.style.display = "block";
+
+        if (confidence >= 80) {
+            document.getElementById("depthValue").innerText    = "0.5–1m";
+            document.getElementById("signalStrength").innerText = "🟢 Strong";
+            document.getElementById("digPoint").innerText      = "Direct";
+        } else if (confidence >= 60) {
+            document.getElementById("depthValue").innerText    = "1–2m";
+            document.getElementById("signalStrength").innerText = "🟡 Moderate";
+            document.getElementById("digPoint").innerText      = "1m radius";
+        } else if (confidence >= 40) {
+            document.getElementById("depthValue").innerText    = "2–3m";
+            document.getElementById("signalStrength").innerText = "🟠 Weak";
+            document.getElementById("digPoint").innerText      = "2m radius";
+        } else {
+            document.getElementById("depthValue").innerText    = "3m+";
+            document.getElementById("signalStrength").innerText = "🔴 Very Weak";
+            document.getElementById("digPoint").innerText      = "Use radar";
+        }
+    }
+
+    // ==============================
+    // WhatsApp Alert
+    // ==============================
+    function sendWhatsAppAlert(lat, lon) {
+        let phone   = "919876543210";
+        let message = "🚨 AVALANCHE VICTIM DETECTED!\n" +
+                      "📍 Location: " + lat + ", " + lon + "\n" +
+                      "⏳ Survival time: 15 minutes\n" +
+                      "🗺️ Map: https://maps.google.com/?q=" + lat + "," + lon + "\n" +
+                      "⚠️ Send rescue team IMMEDIATELY!";
+
+        let url = "https://wa.me/" + phone +
+                  "?text=" + encodeURIComponent(message);
+
+        document.getElementById("whatsappCard").style.display = "block";
+        document.getElementById("whatsappBtn").href           = url;
+    }
+
+    // ==============================
+    // Main Logic
+    // ==============================
+    let resultText = document.getElementById("resultText").innerText;
+    let confValue  = parseFloat("{{ confidence }}");
+
+    if (resultText === "✅ Human Detected") {
+
+        speak("Alert! Human detected. Send rescue team immediately.");
+        alert("🚨 HUMAN DETECTED! Rescue team has been alerted.");
+
+        startTimer(15);
+        estimateDepth(confValue);
+
+        // Live location
+        if (navigator.geolocation) {
+            document.getElementById("locationCard").style.display = "block";
+
+            navigator.geolocation.watchPosition(function(position) {
+                let lat = position.coords.latitude;
+                let lon = position.coords.longitude;
+                let acc = position.coords.accuracy;
+
+                document.getElementById("locationText").innerHTML =
+                    "📍 Lat: " + lat.toFixed(6) +
+                    " | Lon: " + lon.toFixed(6) +
+                    " | Accuracy: ±" + Math.round(acc) + "m";
+
+                document.getElementById("liveMap").src =
+                    "https://maps.google.com/maps?q=" + lat + "," + lon +
+                    "&z=18&output=embed";
+
+                sendWhatsAppAlert(lat, lon);
+
+            }, function(error) {
+                document.getElementById("locationText").innerText =
+                    "❌ Location access denied";
+            }, {
+                enableHighAccuracy: true,
+                maximumAge        : 0,
+                timeout           : 10000
+            });
+        }
+
+    } else {
+        speak("No human detected. Area is clear.");
+    }
+    </script>
+
+</body>
+</html>

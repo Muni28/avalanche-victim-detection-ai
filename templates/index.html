@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Avalanche Victim Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6f9;
+            min-height: 100vh;
+        }
+
+        /* ======= NAVBAR ======= */
+        .navbar {
+            background: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-brand .logo {
+            background: #0984e3;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .navbar-brand h1 {
+            font-size: 18px;
+            color: #2d3436;
+            font-weight: 700;
+        }
+
+        .navbar-brand p {
+            font-size: 12px;
+            color: #636e72;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .navbar-links a {
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .navbar-links a.active {
+            background: #0984e3;
+            color: white;
+        }
+
+        .navbar-links a:not(.active) {
+            color: #636e72;
+            background: #f4f6f9;
+        }
+
+        .navbar-links a:hover:not(.active) {
+            background: #dfe6e9;
+            color: #2d3436;
+        }
+
+        /* ======= HERO SECTION ======= */
+        .hero {
+            background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+            padding: 60px 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* ======= STATS BAR ======= */
+        .stats-bar {
+            background: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0984e3;
+        }
+
+        .stat-item .label {
+            font-size: 12px;
+            color: #636e72;
+            margin-top: 2px;
+        }
+
+        /* ======= MAIN CONTENT ======= */
+        .main {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* ======= UPLOAD CARD ======= */
+        .upload-card {
+            background: white;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .upload-card h3 {
+            font-size: 18px;
+            color: #2d3436;
+            margin-bottom: 6px;
+        }
+
+        .upload-card p {
+            font-size: 14px;
+            color: #636e72;
+            margin-bottom: 25px;
+        }
+
+        .upload-box {
+            border: 2px dashed #b2bec3;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #f8f9fa;
+        }
+
+        .upload-box:hover {
+            border-color: #0984e3;
+            background: #f0f8ff;
+        }
+
+        .upload-box .upload-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .upload-box .upload-text {
+            font-size: 16px;
+            color: #2d3436;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .upload-box .upload-hint {
+            font-size: 13px;
+            color: #636e72;
+        }
+
+        .upload-box input {
+            display: none;
+        }
+
+        #fileName {
+            display: block;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #0984e3;
+            font-weight: 500;
+        }
+
+        /* ======= PREVIEW ======= */
+        #previewBox {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #previewBox img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            border: 2px solid #dfe6e9;
+        }
+
+        #previewBox p {
+            font-size: 12px;
+            color: #636e72;
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+
+        /* ======= BUTTON ======= */
+        .detect-btn {
+            width: 100%;
+            padding: 14px;
+            background: #0984e3;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .detect-btn:hover {
+            background: #0652dd;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(9,132,227,0.4);
+        }
+
+        .detect-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ======= LOADING ======= */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            padding: 12px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            color: #0984e3;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .loading span {
+            display: inline-block;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
+        }
+
+        /* ======= INFO CARDS ======= */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .info-card .icon {
+            font-size: 24px;
+            min-width: 36px;
+            height: 36px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-card h4 {
+            font-size: 14px;
+            color: #2d3436;
+            margin-bottom: 4px;
+        }
+
+        .info-card p {
+            font-size: 12px;
+            color: #636e72;
+            line-height: 1.5;
+        }
+
+        /* ======= FOOTER ======= */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #b2bec3;
+            font-size: 13px;
+        }
+
+        .footer span {
+            color: #0984e3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="navbar-brand">
+            <div class="logo">🚁</div>
+            <div>
+                <h1>AvalancheAI</h1>
+                <p>Victim Detection System</p>
+            </div>
+        </div>
+        <div class="navbar-links">
+            <a href="/" class="active">🏠 Home</a>
+            <a href="/history">📋 History</a>
+            <a href="/stats">📊 Statistics</a>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="hero-badge">🤖 AI Powered Detection</div>
+        <h2>❄️ Avalanche Victim Detection</h2>
+        <p>Upload thermal or normal images to detect buried victims and send instant rescue alerts</p>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="number">95.36%</div>
+            <div class="label">Model Accuracy</div>
+        </div>
+        <div class="stat-item">
+            <div class="number">15 min</div>
+            <div class="label">Survival Window</div>
+        </div>
+        <div class="stat-item">
+            <div class="number">122K+</div>
+            <div class="label">Training Images</div>
+        </div>
+        <div class="stat-item">
+            <div class="number">Real-time</div>
+            <div class="label">GPS Tracking</div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- INFO CARDS -->
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="icon">🌡️</div>
+                <div>
+                    <h4>Thermal Detection</h4>
+                    <p>Detects human heat signatures in thermal images</p>
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="icon">📍</div>
+                <div>
+                    <h4>Live Location</h4>
+                    <p>Real-time GPS tracking of victim location</p>
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="icon">⏳</div>
+                <div>
+                    <h4>Survival Timer</h4>
+                    <p>15 minute countdown for rescue priority</p>
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="icon">📱</div>
+                <div>
+                    <h4>Instant Alert</h4>
+                    <p>WhatsApp alert sent to rescue team</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- UPLOAD CARD -->
+        <div class="upload-card">
+            <h3>🔍 Start Detection</h3>
+            <p>Upload a thermal or normal image to begin victim detection</p>
+
+            <form action="/predict" method="post"
+                  enctype="multipart/form-data"
+                  onsubmit="showLoading()">
+
+                <div class="upload-box"
+                     onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📂</div>
+                    <div class="upload-text">Click to Upload Image</div>
+                    <div class="upload-hint">Supports JPG, JPEG, PNG</div>
+                    <input type="file" id="fileInput" name="file"
+                           accept=".jpg,.jpeg,.png"
+                           required
+                           onchange="showPreview(this)">
+                    <span id="fileName"></span>
+                </div>
+
+                <!-- Image Preview -->
+                <div id="previewBox">
+                    <img id="previewImg" src="" alt="Preview">
+                    <p>Image ready for detection</p>
+                </div>
+
+                <button type="submit" class="detect-btn">
+                    🔍 Start Detection
+                </button>
+
+                <div class="loading" id="loadingText">
+                    <span>⏳ Analyzing image... Please wait</span>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        🤖 Powered by <span>MobileNetV2</span> Transfer Learning
+        — Avalanche Victim Detection System
+    </div>
+
+    <script>
+        function showPreview(input) {
+            let file     = input.files[0];
+            let fileName = file.name;
+
+            document.getElementById("fileName").innerText = "✅ " + fileName;
+
+            // Show image preview
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("previewImg").src = e.target.result;
+                document.getElementById("previewBox").style.display = "block";
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function showLoading() {
+            document.getElementById("loadingText").style.display = "block";
+            document.querySelector(".detect-btn").innerText = "⏳ Detecting...";
+            document.querySelector(".detect-btn").disabled  = true;
+        }
+    </script>
+
+</body>
+</html>
