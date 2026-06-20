@@ -28,3 +28,38 @@ AI-powered system to detect avalanche victims in thermal and normal images using
 ## 🚀 How to Run
 
 1. Clone the repository
+2. Install dependencies
+3. Train the model (dataset not included due to size)
+4. Run the Flask app
+5. Open browser
+## 📁 Project Structure
+├── app.py              # Flask application
+
+├── train.py             # Model training script
+
+├── test.py               # Model testing script
+
+├── resize.py             # Image resizing utility
+
+├── clean_dataset.py      # Dataset cleaning
+
+├── balance_dataset.py    # Dataset balancing
+
+├── templates/            # HTML pages
+
+│   ├── index.html
+
+│   ├── result.html
+
+│   ├── history.html
+
+│   └── stats.html
+
+└── static/               # Uploaded images
+
+
+## ⚠️ Note
+Dataset and trained model file are not included due to GitHub size limits. Run `train.py` after preparing your own dataset to generate the model.
+
+## 👤 Author
+**Muniyammal L** — Electronics and Communication Engineering Student
