@@ -61,5 +61,8 @@ AI-powered system to detect avalanche victims in thermal and normal images using
 ## ⚠️ Note
 Dataset and trained model file are not included due to GitHub size limits. Run `train.py` after preparing your own dataset to generate the model.
 
+## 🌐 Live Demo
+Try it now: https://avalanche-victim-detection-ai-5.onrender.com
+
 ## 👤 Author
 **Muniyammal L** — Electronics and Communication Engineering Student
