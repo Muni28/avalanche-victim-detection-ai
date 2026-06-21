@@ -5,7 +5,9 @@ from flask import Flask, render_template, request
 import numpy as np
 from PIL import Image
 from tensorflow.keras.models import load_model
-import winsound
+import platform
+if platform.system() == "Windows":
+    import winsound
 
 # ==============================
 # Setup
@@ -85,9 +87,10 @@ def predict():
 
         # ✅ Beep alert for human detection
         try:
-            winsound.Beep(1000, 500)
+            if platform.system() == "Windows":
+                winsound.Beep(1000, 500)
         except:
-            pass  # Silently skip if sound fails
+            pass
 
     image_path = "static/" + file.filename
 
