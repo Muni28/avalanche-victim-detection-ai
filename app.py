@@ -8,7 +8,10 @@ from tensorflow.keras.models import load_model
 import platform
 if platform.system() == "Windows":
     import winsound
-
+import gc
+import tensorflow as tf
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
 # ==============================
 # Setup
 # ==============================
@@ -68,6 +71,7 @@ def predict():
 
     # ✅ Predict
     confidence = float(model.predict(img_array, verbose=0)[0][0])
+    gc.collect() 
     print(f"Raw confidence: {confidence:.4f}")
 
     # ✅ Threshold 0.5
